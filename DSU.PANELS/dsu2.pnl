@@ -1,0 +1,103 @@
+)ATTR DEFAULT(%+_)
+   %   TYPE(TEXT)   INTENS(HIGH) SKIP(ON)
+   +   TYPE(TEXT)   INTENS(LOW)  SKIP(ON) COLOR(GREEN)
+   @   TYPE(OUTPUT) INTENS(LOW)  SKIP(ON) COLOR(GREEN)
+   _   TYPE(INPUT)  INTENS(HIGH) CAPS(ON) JUST(LEFT) HILITE(USCORE)
+)BODY EXPAND(\\)
++-\-\-(%DSU - Allocate/Copy DSN+)-\-\-
+%Command ===>_ZCMD
+% &SVMESS               +
++             Old Dataset: %&DSUDSNO                                    +
++             New Dataset: _DSUDSNN                                     +
++
++  Copy OLD Dataset   %===>_Z  +       (Yes or No)
++  Delete OLD Dataset %===>_Z  +       (Yes or No)
++
++  Management Class   %===>_DSUSMSM +
++
++  Data Class         %===>_DSUSMSD +   Storage Class      %===>_DSUSMSS +
++    Space Units      %===>_DSUSPU    +   Volume Serial    %===>_DSUVOL+
++    Primary Quantity %===>_DSUSPP+       Generic Unit     %===>_DSUUNIT +
++    Second  Quantity %===>_DSUSPS+
++    Directory Blocks %===>_DSUDIR+     PDSE
++    Organization     %===>_DSUORG +      Mbr Generations  %===>_Z +(0 -@mgen+)
++    Record Format    %===>_DSURCF+      %Note:+Use ISPF 3.4 command%PG+to
++    Record Length    %===>_DSURCL +            view member generations
++    Block Size       %===>_DSUBLK+
++    Data Set Type    %===>_DSUTYPE +
++    Expiration Date  %===>_DSUEXP  +
+)INIT
+ .CURSOR = DSUDSNN
+ .ZVARS  = '(DSUCPY DSUDEL DSUGEN)'
+ .HELP   = ISR32010
+)PROC
+ &TMPDSNO = &DSUDSNO
+ &TMPDSNN = &DSUDSNN
+ &TMPSMSD = &DSUSMSD
+ &TMPSMSS = &DSUSMSS
+ &TMPSMSM = &DSUSMSM
+ &TMPVOL  = &DSUVOL
+ &TMPUNIT = &DSUUNIT
+ &TMPSPU  = &DSUSPU
+ &TMPSPP  = &DSUSPP
+ &TMPSPS  = &DSUSPS
+ &TMPORG  = &DSUORG
+ &TMPRCF  = &DSURCF
+ &TMPRCL  = &DSURCL
+ &TMPBLK  = &DSUBLK
+ &TMPDIR  = &DSUDIR
+ &TMPTYPE = &DSUTYPE
+ &TMPEXP  = &DSUEXP
+ &TMPGEN  = &DSUGEN
+ &LEN = LENGTH(DSUDSNN)
+ IF (&LEN < 43)
+    VER (&DSUDSNN,NB,DSNAME)
+ ELSE
+    VER (&DSUDSNN,NB)
+ &DSURCL = TRANS (&DSURCL ' ',0 *,*)
+ &DSUBLK = TRANS (&DSUBLK ' ',0 *,*)
+ &DSUEXP = TRANS (&DSUEXP ' ',0 *,*)
+ &DSUSPU = TRANS (&DSUSPU
+           C,CYLINDER CYL,CYLINDER CYLS,CYLINDER
+           CYLINDER,CYLINDER CYLINDERS,CYLINDER
+           T,TRACK TRK,TRACK TRKS,TRACK TRACK,TRACK TRACKS,TRACK
+           B,BLOCK BLK,BLOCK BLKS,BLOCK BLOCK,BLOCK BLOCKS,BLOCK
+           MSG=DSU002)
+ IF (&DSUVOL EQ ' ' & &DSUUNIT EQ ' ')
+    VER(&DSUSMSS,NB)
+ VER (&DSUSPP,NB,NUM)
+ VER (&DSUSPS,NB,NUM)
+ VER (&DSUDIR,NUM)
+ VER (&DSUORG,LIST,PS,PSU,DA,DAU,IS,ISU,PO,POU,VS,MSG=DSU005)
+ IF  (&DSUORG = 'PS' & &DSUTYPE = '')
+     &DSUTYPE = 'BASIC'
+ IF  (&DSUORG = 'PO' & &DSUDIR ^= '' & &DSUTYPE ^= 'PDSE' &
+     &DSUTYPE ^= 'LIBRARY')
+     &DSUTYPE = 'PDS'
+ IF  (&DSUTYPE = 'PDS')
+     VER(&DSUDIR,NB,RANGE,1,32760)
+ IF  (&DSUORG = 'PO' & &DSUDIR = '')
+     &DSUTYPE = 'PDSE'
+ VER (&DSURCL,RANGE,0,32760)
+ VER (&DSUBLK,RANGE,0,32760)
+ VER (&DSUTYPE,NB,LIST,PDSE,LIBRARY,HFS,PDS,LARGE,BASIC,EXTREQ, +
+     EXTPREF,MSG=DSU004)
+ IF  (&DSUTYPE = 'PDS')
+     VER(&DSUDIR,NB,NUM,MSG=DSU006)
+ IF  (&DSUTYPE = 'PDS', 'PDSE', 'LIBRARY')
+     &DSUORG = 'PO'
+ IF  (&DSUTYPE = 'BASIC')
+     &DSUORG = 'PS'
+ IF  (&DSUTYPE = 'PDSE', 'LIBRARY')
+     &DSUDIR = ''
+ IF  (&DSUTYPE = 'PDS', 'PDSE', 'LIBRARY')
+     IF (&DSUTYPEO = '', 'BASIC')
+        VER(&DSUTYPE,NB,LIST,'XXX',MSG=DSU007)
+ IF  (&DSUTYPE = 'PDSE', 'LIBRARY')
+     &DSUDIR = ''
+ IF  (&DSUGEN > 0)
+     IF (&DSUTYPE NE 'PDSE', 'LIBRARY')
+        VER (&DSUGEN,NB,LIST,0,MSG=DSU008)
+ VER (&DSUGEN,RANGE,0,&MGEN)
+ VER (&DSUEXP,RANGE,0,99365)
+)END

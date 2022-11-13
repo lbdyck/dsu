@@ -1,0 +1,26 @@
+)ATTR DEFAULT(%+_)
+   %   TYPE(TEXT)  INTENS(HIGH) SKIP(ON)
+   +   TYPE(TEXT)  INTENS(LOW)  SKIP(ON) COLOR(GREEN)
+   _   TYPE(INPUT) INTENS(HIGH) CAPS(ON) JUST(LEFT) HILITE(USCORE)
+)BODY EXPAND(\\)
+%Tutorial+-\-\-(%DSU - ISPF 3.4 - Line Command+)-\-\-%Tutorial
+%Command ===>_ZCMD
++
++  The%Data Set Utility (DSU)+is an easy way to create and copy
++  datasets.  Often there is a need to copy a dataset or create a
++  new dataset with the same characteristics.
++
++  Normally, when you want to perform such a copy, you use%ISPF 3.4+
++  to do an inquiry on the original dataset.  Next, you use%ISPF 3.2+
++  to allocate the new dataset like the old one and after allocating,
++  you use%ISPF 3.3+to copy the contents.
++
++  The%Data Set Utility (DSU)+can be used from the dataset list
++  screen%(ISPF 3.4)+as a simple line command.
++
++  From the%ISPF 3.4+dataset list screen, tab down and type in
++ %DSU+next to the dataset name.
+)PROC
+  &ZUP     = #DSU
+  &ZCONT   = #DSU
+)END

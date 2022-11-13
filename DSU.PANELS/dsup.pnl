@@ -1,0 +1,31 @@
+)ATTR DEFAULT(%+_)
+   %   TYPE(TEXT)  INTENS(HIGH) SKIP(ON)
+   +   TYPE(TEXT)  INTENS(LOW)  SKIP(ON) COLOR(GREEN)
+   _   TYPE(INPUT) INTENS(HIGH) CAPS(ON) JUST(LEFT) HILITE(USCORE)
+)Body Window(61,5) Expand(\\)
++-\-\-(%DSU - DSN Prompt+)-\-\-
+%Command ===>_ZCMD                                          +
+%
++  Old Dataset: _DSUDSNO                                    +
+%
+)INIT
+ .CURSOR = DSUDSNO
+ .HELP   = ISR32010
+)PROC
+ ver(&dsudsno,nb,dsnameq)
+*REXX(* zedsmsg zedlmsg)
+  parse value '' with null zedsmsg zedlmsg
+  if left(dsudsno,1) = "'"
+     then if right(dsudsno,1) /= "'"
+        then dsudsno = dsudsno"'"
+  if left(dsudsno,1) /= "'" then
+     if sysdsn(dsudsno) /= 'OK' then do
+        zedsmsg = 'DSN Error.'
+        zedlmsg = 'Old Dataset does not exist.'
+     end
+  x = listdsi(dsudsno)
+  dsudsno = "'"sysdsname"'"
+*ENDREXX
+ if (&zedsmsg NE &Z)
+    .msg = isrz001
+)END
