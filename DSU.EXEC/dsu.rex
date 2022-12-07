@@ -5,6 +5,7 @@
   /*--------------------------------------------------------------------*/
   /* FLG  YYMMDD  USERID   DESCRIPTION                                  */
   /* ---  ------  -------  -------------------------------------------- */
+  /* xxx  221206  xxx      Error msg if PDSE Gen Mbr is Load Module     */
   /* lbd  221113  LBD      Clean up for public distribution             */
   /* lbd  221110  LBD      Add dsn prompt if not called from 3.4        */
   /* lbd  161026  LBD      Change to use normal ISPF/TSO dsname         */
@@ -69,7 +70,7 @@
   PANEL = PANEL02
 
   ADDRESS ISPEXEC
-  PARSE ARG DSUDSNO
+  ARG DSUDSNO
   IF (DSUDSNO = "?") THEN DO
     "DISPLAY PANEL(#DSU)"
     EXIT
@@ -405,6 +406,15 @@ ALLOCDSN:
     CALL RESTORE_INPUT
     "SETMSG MSG(isrz001)"
     RETURN
+  END
+  IF (DSUGEN > 0) & (DSURCF = "U") THEN DO
+     STKSMSG = "Mbr Gen can't be loadlib"
+     STKLMSG = "PDSE member generation datasets,",
+               "cannot be a loadlib/executables."
+     ZDLMSG  = "Alloc/Copy/Del"
+     ADDRESS ISPEXEC "SETMSG MSG(STK001)"
+     CALL RESTORE_INPUT
+     RETURN
   END
 
   ADDRESS TSO
